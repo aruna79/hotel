@@ -19,7 +19,7 @@ describe "Reservation" do
       admin.room.must_equal 2
     end
 
-    it "has a cost" do
+    it "has a total_cost" do
       admin = Hotel::Reservation.new("2018-9-01", "2018-9-04", 2)
       admin.must_respond_to :total_cost
       admin.total_cost.must_equal 600
@@ -30,7 +30,7 @@ describe "Reservation" do
 
       proc { Hotel::Reservation.new("2018-13-30", "2018-03-03", 3) }.must_raise ArgumentError
 
-      proc { Hotel::Resernation.new("2018-02-25", "2018-02-29")}
+      proc { Hotel::Reservation.new("2018-02-25", "2018-02-29")}.must_raise ArgumentError
     end
   end
 end
