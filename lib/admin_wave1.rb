@@ -3,7 +3,6 @@ require_relative 'room_wave1'
 require_relative 'reservation_wave1'
 require 'date'
 
-
 module Hotel
   NUMBER_OF_ROOMS = 20
 
@@ -16,8 +15,8 @@ module Hotel
         room = Hotel::Room.new(i+1)
         @@list_of_rooms << room
         @all_reservations = []
-      end
 
+      end
     end
 
     # As an administrator, I can access the list of all of the rooms in the hotel
@@ -31,36 +30,34 @@ module Hotel
     end
 
     # - As an administrator, I can reserve a room for a given date range
-
     def make_reservation(start_date,end_date,room_no)
 
       reservation = Hotel::Reservation.new(start_date,end_date,room_no)
       @all_reservations << reservation
-
       return @all_reservations
 
     end
 
-# - As an administrator, I can access the list of reservations for a specific date
-
+    # - As an administrator, I can access the list of reservations for a specific date
     def get_reservations(date)
 
       if date.class!= Date
         raise ArgumentError.new("invalid date")
       end
 
-      @all_reservations.each do |reservation|
+      @all_reservations.each do |res|
         list =[]
-        if reservation.start_date <= date || reservation.end_date > end_date
-          list << reservation
+        if res.start_date <= date && res.end_date > date
+          list << res
         end
         return list
       end
 
     end
 
-# - As an administrator, I can get the total cost for a given reservation
+    # - As an administrator, I can get the total cost for a given reservation
     def total_cost(start_date,end_date)
+      
       datediff = end_date - start_date
       cost= datediff * 200
       return cost.to_i
