@@ -9,7 +9,6 @@ describe "instantiation" do
     @hotel.must_be_instance_of Hotel::Admin
   end
 
-
   it "returns the list of all rooms" do
     @hotel.get_list.must_be_instance_of Array
   end
@@ -82,19 +81,18 @@ describe "total cost" do
 
   end
 
-
   it "raises error for invalid dates" do
     hotel = Hotel::Admin.new
     start_date = Date.new(2018,05,9)
     end_date = Date.new(2018,05,06)
     #res = hotel.make_reservation(start_date,end_date,2)
     proc{hotel.total_cost(start_date,end_date)}.must_raise ArgumentError
-
-
   end
+
 end
 
 describe "list_of_available_rooms" do
+
   it "raises error if given date is invalid" do
     hotel = Hotel::Admin.new
     proc{hotel.get_reservations(2)}.must_raise ArgumentError
@@ -107,7 +105,6 @@ describe "list_of_available_rooms" do
     hotel.make_reservation(Date.new(2018,05,5),Date.new(2018,05,7))
     hotel.make_reservation(Date.new(2018,05,6),Date.new(2018,05,8))
     hotel.make_reservation(Date.new(2018,05,5),Date.new(2018,05,9))
-
 
     hotel.list_of_available_rooms(Date.new(2018,05,4)).length.must_equal 20
     hotel.list_of_available_rooms(Date.new(2018,05,5)).length.must_equal 19
@@ -161,6 +158,7 @@ describe "reserve_list_available_rooms" do
 end
 
 describe "create_block" do
+
   it "creates an instance of BlockReservation class" do
     hotel = Hotel::Admin.new
     block = hotel.create_block(Date.new(2018,5,5), Date.new(2018,5,9),"one",150)
@@ -183,6 +181,7 @@ describe "create_block" do
     hotel = Hotel::Admin.new
     proc { hotel.create_block("2018-3-5", "2018-3-7", "one", 150) }.must_raise ArgumentError
   end
+
 end
 
 describe "reserve_block_room" do
@@ -202,8 +201,8 @@ describe "reserve_block_room" do
     before_length = hotel.all_reservations.length
     reservation = hotel.reserve_block_room("one")
     reservation.length.must_equal before_length + 4
-
   end
+
   it "returns reservation with correct information" do
     hotel = Hotel::Admin.new
     hotel.create_block(Date.new(2018,5,5), Date.new(2018,5,9),"one",150)
@@ -214,9 +213,6 @@ describe "reserve_block_room" do
     (1..20).to_a.include?(block[0].room_number.number).must_equal true
 
   end
-
-
-
 end
 
 describe "check_block_availability" do
@@ -229,6 +225,6 @@ describe "check_block_availability" do
     end
     proc{hotel.check_block_availability("one")}.must_raise Exception
 
-
   end
+
 end
