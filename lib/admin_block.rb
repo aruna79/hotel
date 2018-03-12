@@ -3,6 +3,7 @@ require_relative 'room_wave1'
 require_relative 'reservation_wave1'
 require_relative 'block'
 require 'date'
+require "awesome_print"
 
 module Hotel
   NUMBER_OF_ROOMS = 20
@@ -17,15 +18,6 @@ module Hotel
       @list_of_rooms = create_rooms
     end
 
-    def create_rooms
-      @list_of_rooms = []
-      NUMBER_OF_ROOMS.times do |i|
-        room = Hotel::Room.new(i+1)
-        @list_of_rooms << room
-      end
-      return @list_of_rooms
-    end
-
     # As an administrator, I can access the list of all of the rooms in the hotel
     def get_list
       rooms = []
@@ -36,7 +28,7 @@ module Hotel
 
     end
 
-    # - As an administrator, I can reserve a room for a given date range
+    #- As an administrator, I can reserve a room for a given date range
     def make_reservation(start_date,end_date)
       room_number = @list_of_rooms.sample
       reservation = Hotel::Reservation.new(start_date,end_date,room_number)
@@ -73,20 +65,18 @@ module Hotel
         reserved_rooms << reservation.room_number
       end
       return @list_of_rooms - reserved_rooms
-      #return @available_rooms
     end
 
-    # To reserve available rooms for a given date range
+    # To reserve available rooms for a given date range also eliminates rooms that are in reserved in a block
     def reserve_available_rooms(start_date,end_date)
 
       rooms_available_range = get_available_rooms(start_date,end_date)
 
-
       if rooms_available_range.empty?
         raise Exception.new("No rooms are available")
       else
-        r_room_block = get_block_room(start_date,end_date)
-        rooms_available_range = rooms_available_range - r_room_block
+        list_room_block = get_block_room(start_date,end_date)
+        rooms_available_range = rooms_available_range - list_room_block
         availability = rooms_available_range[0]
 
         reservation = Hotel::Reservation.new(start_date,end_date,availability)
@@ -107,8 +97,13 @@ module Hotel
 
     end
 
+    # Method for creating block of rooms for a specified date range
     def create_block(start_date, end_date, block_id, discount_rate)
+      if start_date.class != Date || end_date.class!=Date
+        raise ArgumentError.new("Invalid date")
+      end
       avail_rooms = get_available_rooms(start_date,end_date)
+
       (0..4).each do |i|
         room_block = avail_rooms[i]
         #  print room_block
@@ -116,29 +111,59 @@ module Hotel
         @block_reservation << reservation_block
       end
       return @block_reservation
+
     end
 
+    #Method to reserve a room from block
+    def reserve_block_room(block_id)
+
+      block_records = []
+      block_records = check_block_availability(block_id)
+
+      start_date = block_records[0].start_date
+      end_date = block_records[0].end_date
+      room_number = block_records[0].room_number
+      discount_rate = block_records[0].discount_rate
+      status = false
+      reservation = Hotel::Reservation.new(start_date,end_date,room_number)
+      #below record is used to add the same record into block_reservation with status false
+      reservation_block = Hotel::BlockReservation.new(start_date,end_date,room_number, discount_rate, block_id, status)
+
+      @all_reservations << reservation
+      #to find the index of the room in block_reservation array
+      index_record = 0
+      for num in 0..@block_reservation.length-1
+        if (@block_reservation[num].room_number == room_number && @block_reservation[num].block_id == block_id)
+          index_record = num
+        end
+      end
+      #Remove the room from the @block_reservation
+      @block_reservation.delete_at(index_record)
+      #Add the removed room with status false
+      @block_reservation << reservation_block
+      return @block_reservation
+
+    end
+
+    # Method to list available rooms after checking reservation list & block reservation
     def get_available_rooms(start_date,end_date)
-      rooms_reserved_date = []
+
       rooms_available_range = []
-      # to store list of all rooms
+
       rooms_available_range = @list_of_rooms
-      # to find the rooms that are reserved for a given date in the range
       (start_date...end_date).each do |date|
-        # to check which room is reserved for "date"
         @all_reservations.each do |res|
           list =[]
           if res.start_date <= date && res.end_date > date
-            # Storing the reserved rooms in the "list" array
             list << res.room_number
           end
-          # remove the reserved rooms from all rooms
           rooms_available_range = rooms_available_range - list
         end
       end
       return rooms_available_range
     end
 
+    # Method to get the list of rooms available in the blocks
     def get_block_room(start_date,end_date)
       room_list = []
       (start_date...end_date).each do |date_record|
@@ -151,41 +176,25 @@ module Hotel
       end
       return room_list
     end
+
+    # Method to check if a block has available rooms
+    def check_block_availability(block_id)
+      block_records = @block_reservation.select{|block| block.block_id == block_id && block.status == true}
+      if block_records.empty?
+        raise Exception.new("No rooms are available in the block")
+      else
+        return block_records
+      end
+    end
+
+    private
+    def create_rooms
+      @list_of_rooms = []
+      NUMBER_OF_ROOMS.times do |i|
+        room = Hotel::Room.new(i+1)
+        @list_of_rooms << room
+      end
+      return @list_of_rooms
+    end
   end
 end
-
-
-
-# h= Hotel::Admin.new
-# start_date = Date.new(2018,5,3)
-# end_date =Date.new(2018,5,6)
-# #  #print "reservation of room\n"
-# print  h.make_reservation(start_date,end_date)
-# # # #puts h.total_cost(start_date,end_date)
-# # # puts h.list_reservations(Date.new(2018,5,4))
-# # #print"\n**************************************\n"
-# # #res_room = []
-# # #print "available room\n"
-# # #h.list_of_available_rooms(Date.new(2018,5,6))
-# # print"\n**************************************\n"
-# # print "reserve available room for dates 5th to 7th\n"
-# # 20.times do
-# print"\n**************************************\n"
-# print "reserve block available room for dates 5th to 9th\n"
-# #
-# # h.reserve_available_rooms(Date.new(2018,5,6), Date.new(2018,5,9))
-# print h.create_block(Date.new(2018,5,5), Date.new(2018,5,9),"one",150)
-# print"\n**************************************\n"
-# print "reserve  available room for dates 5th to 7th\n"
-#
-# print"\n**************************************\n"
-#
-# print h.reserve_available_rooms(Date.new(2018,5,5), Date.new(2018,5,7))
-#
-# print"\n**************************************\n"
-# # #print "\n*********\n"
-# # end
-# # #print"\n**************************************\n"
-# # #print "available room\n"
-# # #print h.list_of_available_rooms(Date.new(2018,5,6))
-# # #print res_roomk

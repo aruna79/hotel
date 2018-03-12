@@ -137,14 +137,14 @@ describe "reserve_list_available_rooms" do
     reservation = hotel.reserve_available_rooms(start_date,end_date)
     reservation.length.must_equal before_length + 1
 
-    end
+  end
 
   it "raises an error there are no available rooms" do
     hotel = Hotel::Admin.new
-      hotel.list_of_available_rooms(Date.new(2018,5,3))
-      20.times do
-        hotel.reserve_available_rooms(Date.new(2018,5,3),Date.new(2018,5,6))
-      end
+    hotel.list_of_available_rooms(Date.new(2018,5,3))
+    20.times do
+      hotel.reserve_available_rooms(Date.new(2018,5,3),Date.new(2018,5,6))
+    end
 
     proc{hotel.reserve_available_rooms(Date.new(2018,5,3),Date.new(2018,5,6))}.must_raise Exception
   end
@@ -158,6 +158,77 @@ describe "reserve_list_available_rooms" do
 
   end
 
+end
+
+describe "create_block" do
+  it "creates an instance of BlockReservation class" do
+    hotel = Hotel::Admin.new
+    block = hotel.create_block(Date.new(2018,5,5), Date.new(2018,5,9),"one",150)
+    block.must_be_instance_of Array
+  end
+
+  it " creates a block of rooms " do
+    hotel = Hotel::Admin.new
+    block = hotel.create_block(Date.new(2018,5,5), Date.new(2018,5,9),"one",150)
+
+    block[0].block_id.must_equal "one"
+    block[0].status.must_equal true
+    block[0].room_number.must_be_instance_of Hotel::Room
+    block[0].discount_rate.must_equal 150
+
+  end
 
 
+  it "rasies an ArgumentError if check in date and/or check out date is invalid" do
+    hotel = Hotel::Admin.new
+    proc { hotel.create_block("2018-3-5", "2018-3-7", "one", 150) }.must_raise ArgumentError
+  end
+end
+
+describe "reserve_block_room" do
+  it "reserves a block of room" do
+    hotel = Hotel::Admin.new
+    block = hotel.create_block(Date.new(2018,5,5), Date.new(2018,5,9),"one",150)
+    block = hotel.reserve_block_room("one")
+    block[0].room_number.number.must_equal 2
+    block[0].status.must_equal true
+  end
+
+  it "adds the new reserved block to the list of all reservations" do
+    hotel = Hotel::Admin.new
+    hotel.create_block(Date.new(2018,5,5), Date.new(2018,5,9),"one",150)
+    hotel.reserve_block_room("one")
+
+    before_length = hotel.all_reservations.length
+    reservation = hotel.reserve_block_room("one")
+    reservation.length.must_equal before_length + 4
+
+  end
+  it "returns reservation with correct information" do
+    hotel = Hotel::Admin.new
+    hotel.create_block(Date.new(2018,5,5), Date.new(2018,5,9),"one",150)
+    block = hotel.reserve_block_room("one")
+
+    block[0].start_date.must_equal Date.new(2018,5,5)
+    block[0].end_date.must_equal Date.new(2018,5,9)
+    (1..20).to_a.include?(block[0].room_number.number).must_equal true
+
+  end
+
+
+
+end
+
+describe "check_block_availability" do
+  it "raises error if there are no rooms available in block" do
+    hotel = Hotel::Admin.new
+    hotel.create_block(Date.new(2018,5,5), Date.new(2018,5,9),"one",150)
+
+    5.times do
+      hotel.reserve_block_room("one")
+    end
+    proc{hotel.check_block_availability("one")}.must_raise Exception
+
+
+  end
 end
