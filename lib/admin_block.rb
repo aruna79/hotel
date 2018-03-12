@@ -3,7 +3,7 @@ require_relative 'room_wave1'
 require_relative 'reservation_wave1'
 require_relative 'block'
 require 'date'
-require "awesome_print"
+
 
 module Hotel
   NUMBER_OF_ROOMS = 20
