@@ -105,9 +105,9 @@ Remember that your job is only to build the classes that store information and h
 
 If you are not familiar with what a block of hotel rooms, here is a brief description:
 
-> A Block Booking refers to a group of rooms set aside for a specific group of customers for a set period of time.
->
-> Room blocks are commonly created for large events like weddings or conventions. A number of rooms are set aside, and are made available for reservation by certain customers at a discounted rate. These rooms are not available to be reserved by the general public.
+ A Block Booking refers to a group of rooms set aside for a specific group of customers for a set period of time.
+
+Room blocks are commonly created for large events like weddings or conventions. A number of rooms are set aside, and are made available for reservation by certain customers at a discounted rate. These rooms are not available to be reserved by the general public.
 
 ### User Stories
 
@@ -133,4 +133,4 @@ You should not be working on these (or even thinking about them) until you have 
 - Create a CLI to interact with your hotel system
 
 ## What we're looking for
-You can find what instructors will be looking for in the [feedback](feedback.md) markdown document. 
+You can find what instructors will be looking for in the [feedback](feedback.md) markdown document.

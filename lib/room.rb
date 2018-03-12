@@ -1,10 +1,13 @@
 module Hotel
-  class Room
-    attr_reader :number, :status
 
-    def initialize(number, status= :available)
+  class Room
+    attr_reader :number
+    def initialize(number)
       @number = number
-      @status = status
+      if @number < 1 || @number > 20
+        raise ArgumentError.new("Invalid room number")
+      end
     end
+
   end
 end

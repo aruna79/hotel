@@ -83,7 +83,7 @@ module Hotel
       rooms_available_range = @list_of_rooms
       # to find the rooms that are reserved for a given date in the range
       (start_date...end_date).each do |date|
-      # to check which room is reserved for "date"
+        # to check which room is reserved for "date"
         @all_reservations.each do |res|
           list =[]
           if res.start_date <= date && res.end_date > date
@@ -98,8 +98,8 @@ module Hotel
       if rooms_available_range.empty?
         raise Exception.new("No rooms are available")
       else
-        availability = rooms_available_range[0]
 
+        availability = rooms_available_range[0]
         reservation = Hotel::Reservation.new(start_date,end_date,availability)
         @all_reservations << reservation
         return @all_reservations
