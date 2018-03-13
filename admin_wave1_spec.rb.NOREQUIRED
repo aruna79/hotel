@@ -1,6 +1,0 @@
-describe "instantiation" do
-  it "creates an instance" do
-    hotel = Hotel::Admin.new
-    hotel.create_rooms.must_be_instance_of Hotel::Room
-  end
-end
